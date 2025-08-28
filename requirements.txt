@@ -1,0 +1,12 @@
+python-docx
+pandas
+openpyxl
+tiktoken
+pinecone>=5.0.0
+openai>=1.40.0
+python-dotenv
+fastapi
+uvicorn
+pydantic
+tqdm
+tenacity

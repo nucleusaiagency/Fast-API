@@ -1,0 +1,188 @@
+run_ts,source_file,id,program,chunk_id,chunk_word_count,upsert_ms
+2025-08-27T12:19:05.420459,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00000-0-500-v1,MWM,0,500,149
+2025-08-27T12:19:05.420459,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00001-400-900-v1,MWM,1,500,149
+2025-08-27T12:19:05.421454,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00002-800-1300-v1,MWM,2,500,149
+2025-08-27T12:19:05.421454,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00003-1200-1700-v1,MWM,3,500,149
+2025-08-27T12:19:05.421454,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00004-1600-2100-v1,MWM,4,500,149
+2025-08-27T12:19:05.421454,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00005-2000-2500-v1,MWM,5,500,149
+2025-08-27T12:19:05.421454,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00006-2400-2900-v1,MWM,6,500,149
+2025-08-27T12:19:05.421454,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00007-2800-3300-v1,MWM,7,500,149
+2025-08-27T12:19:05.421454,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00008-3200-3700-v1,MWM,8,500,149
+2025-08-27T12:19:05.421454,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00009-3600-4100-v1,MWM,9,500,149
+2025-08-27T12:19:05.421454,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00010-4000-4500-v1,MWM,10,500,149
+2025-08-27T12:19:05.421454,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00011-4400-4900-v1,MWM,11,500,149
+2025-08-27T12:19:05.421454,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00012-4800-5300-v1,MWM,12,500,149
+2025-08-27T12:19:05.421454,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00013-5200-5700-v1,MWM,13,500,149
+2025-08-27T12:19:05.421454,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00014-5600-6100-v1,MWM,14,500,149
+2025-08-27T12:19:05.421454,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00015-6000-6500-v1,MWM,15,500,149
+2025-08-27T12:19:05.422450,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00016-6400-6900-v1,MWM,16,500,149
+2025-08-27T12:19:05.422450,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00017-6800-7300-v1,MWM,17,500,149
+2025-08-27T12:19:05.422450,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00018-7200-7700-v1,MWM,18,500,149
+2025-08-27T12:19:05.422450,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00019-7600-8100-v1,MWM,19,500,149
+2025-08-27T12:19:05.422450,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00020-8000-8500-v1,MWM,20,500,149
+2025-08-27T12:19:05.422450,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00021-8400-8900-v1,MWM,21,500,149
+2025-08-27T12:19:05.422450,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00022-8800-9300-v1,MWM,22,500,149
+2025-08-27T12:19:05.422450,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00023-9200-9700-v1,MWM,23,500,149
+2025-08-27T12:19:05.422450,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00024-9600-10100-v1,MWM,24,500,149
+2025-08-27T12:19:05.422450,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00025-10000-10500-v1,MWM,25,500,149
+2025-08-27T12:19:05.422450,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00026-10400-10900-v1,MWM,26,500,149
+2025-08-27T12:19:05.422450,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00027-10800-11300-v1,MWM,27,500,149
+2025-08-27T12:19:05.422450,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00028-11200-11700-v1,MWM,28,500,149
+2025-08-27T12:19:05.422450,MWM December 2023 - Session 01 -  Video_Tranacription.docx,MWM/2023/mwm-december-2023---session-01---video_tranacription/55811800:chunk00029-11600-11874-v1,MWM,29,274,149
+2025-08-27T12:19:09.000281,PEA 2024 - Workshop  04 - Session 1 - Transcription.docx,Workshop/2024/pea-2024---workshop-04---session-1---transcription/40899168:chunk00000-0-500-v1,Workshop,0,500,55
+2025-08-27T12:19:09.000281,PEA 2024 - Workshop  04 - Session 1 - Transcription.docx,Workshop/2024/pea-2024---workshop-04---session-1---transcription/40899168:chunk00001-400-900-v1,Workshop,1,500,55
+2025-08-27T12:19:09.000281,PEA 2024 - Workshop  04 - Session 1 - Transcription.docx,Workshop/2024/pea-2024---workshop-04---session-1---transcription/40899168:chunk00002-800-1300-v1,Workshop,2,500,55
+2025-08-27T12:19:09.000281,PEA 2024 - Workshop  04 - Session 1 - Transcription.docx,Workshop/2024/pea-2024---workshop-04---session-1---transcription/40899168:chunk00003-1200-1700-v1,Workshop,3,500,55
+2025-08-27T12:19:09.000281,PEA 2024 - Workshop  04 - Session 1 - Transcription.docx,Workshop/2024/pea-2024---workshop-04---session-1---transcription/40899168:chunk00004-1600-2100-v1,Workshop,4,500,55
+2025-08-27T12:19:09.000281,PEA 2024 - Workshop  04 - Session 1 - Transcription.docx,Workshop/2024/pea-2024---workshop-04---session-1---transcription/40899168:chunk00005-2000-2500-v1,Workshop,5,500,55
+2025-08-27T12:19:09.000281,PEA 2024 - Workshop  04 - Session 1 - Transcription.docx,Workshop/2024/pea-2024---workshop-04---session-1---transcription/40899168:chunk00006-2400-2900-v1,Workshop,6,500,55
+2025-08-27T12:19:09.000281,PEA 2024 - Workshop  04 - Session 1 - Transcription.docx,Workshop/2024/pea-2024---workshop-04---session-1---transcription/40899168:chunk00007-2800-3300-v1,Workshop,7,500,55
+2025-08-27T12:19:09.000281,PEA 2024 - Workshop  04 - Session 1 - Transcription.docx,Workshop/2024/pea-2024---workshop-04---session-1---transcription/40899168:chunk00008-3200-3700-v1,Workshop,8,500,55
+2025-08-27T12:19:09.000281,PEA 2024 - Workshop  04 - Session 1 - Transcription.docx,Workshop/2024/pea-2024---workshop-04---session-1---transcription/40899168:chunk00009-3600-4100-v1,Workshop,9,500,55
+2025-08-27T12:19:09.000281,PEA 2024 - Workshop  04 - Session 1 - Transcription.docx,Workshop/2024/pea-2024---workshop-04---session-1---transcription/40899168:chunk00010-4000-4500-v1,Workshop,10,500,55
+2025-08-27T12:19:09.000281,PEA 2024 - Workshop  04 - Session 1 - Transcription.docx,Workshop/2024/pea-2024---workshop-04---session-1---transcription/40899168:chunk00011-4400-4900-v1,Workshop,11,500,55
+2025-08-27T12:19:09.001423,PEA 2024 - Workshop  04 - Session 1 - Transcription.docx,Workshop/2024/pea-2024---workshop-04---session-1---transcription/40899168:chunk00012-4800-5300-v1,Workshop,12,500,55
+2025-08-27T12:19:09.001423,PEA 2024 - Workshop  04 - Session 1 - Transcription.docx,Workshop/2024/pea-2024---workshop-04---session-1---transcription/40899168:chunk00013-5200-5700-v1,Workshop,13,500,55
+2025-08-27T12:19:09.001423,PEA 2024 - Workshop  04 - Session 1 - Transcription.docx,Workshop/2024/pea-2024---workshop-04---session-1---transcription/40899168:chunk00014-5600-6100-v1,Workshop,14,500,55
+2025-08-27T12:19:09.001423,PEA 2024 - Workshop  04 - Session 1 - Transcription.docx,Workshop/2024/pea-2024---workshop-04---session-1---transcription/40899168:chunk00015-6000-6500-v1,Workshop,15,500,55
+2025-08-27T12:19:09.001423,PEA 2024 - Workshop  04 - Session 1 - Transcription.docx,Workshop/2024/pea-2024---workshop-04---session-1---transcription/40899168:chunk00016-6400-6631-v1,Workshop,16,231,55
+2025-08-27T12:19:14.474097,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00000-0-500-v1,MMM,0,500,45
+2025-08-27T12:19:14.474097,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00001-400-900-v1,MMM,1,500,45
+2025-08-27T12:19:14.474097,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00002-800-1300-v1,MMM,2,500,45
+2025-08-27T12:19:14.474097,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00003-1200-1700-v1,MMM,3,500,45
+2025-08-27T12:19:14.474097,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00004-1600-2100-v1,MMM,4,500,45
+2025-08-27T12:19:14.474097,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00005-2000-2500-v1,MMM,5,500,45
+2025-08-27T12:19:14.474097,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00006-2400-2900-v1,MMM,6,500,45
+2025-08-27T12:19:14.474097,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00007-2800-3300-v1,MMM,7,500,45
+2025-08-27T12:19:14.474097,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00008-3200-3700-v1,MMM,8,500,45
+2025-08-27T12:19:14.474097,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00009-3600-4100-v1,MMM,9,500,45
+2025-08-27T12:19:14.474097,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00010-4000-4500-v1,MMM,10,500,45
+2025-08-27T12:19:14.474097,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00011-4400-4900-v1,MMM,11,500,45
+2025-08-27T12:19:14.474097,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00012-4800-5300-v1,MMM,12,500,45
+2025-08-27T12:19:14.475101,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00013-5200-5700-v1,MMM,13,500,45
+2025-08-27T12:19:14.475101,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00014-5600-6100-v1,MMM,14,500,45
+2025-08-27T12:19:14.475101,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00015-6000-6500-v1,MMM,15,500,45
+2025-08-27T12:19:14.475101,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00016-6400-6900-v1,MMM,16,500,45
+2025-08-27T12:19:14.475101,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00017-6800-7300-v1,MMM,17,500,45
+2025-08-27T12:19:14.475101,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00018-7200-7700-v1,MMM,18,500,45
+2025-08-27T12:19:14.475101,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00019-7600-8100-v1,MMM,19,500,45
+2025-08-27T12:19:14.475101,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00020-8000-8500-v1,MMM,20,500,45
+2025-08-27T12:19:14.475101,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00021-8400-8900-v1,MMM,21,500,45
+2025-08-27T12:19:14.475101,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00022-8800-9300-v1,MMM,22,500,45
+2025-08-27T12:19:14.475101,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00023-9200-9700-v1,MMM,23,500,45
+2025-08-27T12:19:14.475101,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00024-9600-10100-v1,MMM,24,500,45
+2025-08-27T12:19:14.475101,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00025-10000-10500-v1,MMM,25,500,45
+2025-08-27T12:19:14.475101,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00026-10400-10900-v1,MMM,26,500,45
+2025-08-27T12:19:14.475101,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00027-10800-11300-v1,MMM,27,500,45
+2025-08-27T12:19:14.475101,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00028-11200-11700-v1,MMM,28,500,45
+2025-08-27T12:19:14.475101,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00029-11600-12100-v1,MMM,29,500,45
+2025-08-27T12:19:14.475101,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00030-12000-12500-v1,MMM,30,500,45
+2025-08-27T12:19:14.475101,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00031-12400-12900-v1,MMM,31,500,45
+2025-08-27T12:19:14.475101,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00032-12800-13300-v1,MMM,32,500,45
+2025-08-27T12:19:14.475101,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00033-13200-13700-v1,MMM,33,500,45
+2025-08-27T12:19:14.476093,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00034-13600-14100-v1,MMM,34,500,45
+2025-08-27T12:19:14.476093,PEA Apr 2025 MMM - Video.docx,MMM/2025/pea-apr-2025-mmm---video/5157eb37:chunk00035-14000-14446-v1,MMM,35,446,45
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00000-0-500-v1,Workshop,0,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00001-400-900-v1,Workshop,1,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00002-800-1300-v1,Workshop,2,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00003-1200-1700-v1,Workshop,3,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00004-1600-2100-v1,Workshop,4,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00005-2000-2500-v1,Workshop,5,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00006-2400-2900-v1,Workshop,6,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00007-2800-3300-v1,Workshop,7,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00008-3200-3700-v1,Workshop,8,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00009-3600-4100-v1,Workshop,9,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00010-4000-4500-v1,Workshop,10,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00011-4400-4900-v1,Workshop,11,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00012-4800-5300-v1,Workshop,12,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00013-5200-5700-v1,Workshop,13,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00014-5600-6100-v1,Workshop,14,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00015-6000-6500-v1,Workshop,15,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00016-6400-6900-v1,Workshop,16,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00017-6800-7300-v1,Workshop,17,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00018-7200-7700-v1,Workshop,18,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00019-7600-8100-v1,Workshop,19,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00020-8000-8500-v1,Workshop,20,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00021-8400-8900-v1,Workshop,21,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00022-8800-9300-v1,Workshop,22,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00023-9200-9700-v1,Workshop,23,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00024-9600-10100-v1,Workshop,24,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00025-10000-10500-v1,Workshop,25,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00026-10400-10900-v1,Workshop,26,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00027-10800-11300-v1,Workshop,27,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00028-11200-11700-v1,Workshop,28,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00029-11600-12100-v1,Workshop,29,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00030-12000-12500-v1,Workshop,30,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00031-12400-12900-v1,Workshop,31,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00032-12800-13300-v1,Workshop,32,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00033-13200-13700-v1,Workshop,33,500,49
+2025-08-27T12:19:20.713379,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00034-13600-14100-v1,Workshop,34,500,49
+2025-08-27T12:19:20.714446,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00035-14000-14500-v1,Workshop,35,500,49
+2025-08-27T12:19:20.714446,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00036-14400-14900-v1,Workshop,36,500,49
+2025-08-27T12:19:20.714446,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00037-14800-15300-v1,Workshop,37,500,49
+2025-08-27T12:19:20.714446,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00038-15200-15700-v1,Workshop,38,500,49
+2025-08-27T12:19:20.714446,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00039-15600-16100-v1,Workshop,39,500,49
+2025-08-27T12:19:20.714446,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00040-16000-16500-v1,Workshop,40,500,49
+2025-08-27T12:19:20.714446,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00041-16400-16900-v1,Workshop,41,500,49
+2025-08-27T12:19:20.714446,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00042-16800-17300-v1,Workshop,42,500,49
+2025-08-27T12:19:20.714446,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00043-17200-17700-v1,Workshop,43,500,49
+2025-08-27T12:19:20.714446,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00044-17600-18100-v1,Workshop,44,500,49
+2025-08-27T12:19:20.714446,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00045-18000-18500-v1,Workshop,45,500,49
+2025-08-27T12:19:20.714446,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00046-18400-18900-v1,Workshop,46,500,49
+2025-08-27T12:19:20.714446,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00047-18800-19300-v1,Workshop,47,500,49
+2025-08-27T12:19:20.714446,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00048-19200-19700-v1,Workshop,48,500,49
+2025-08-27T12:19:20.714446,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00049-19600-20100-v1,Workshop,49,500,49
+2025-08-27T12:19:20.714446,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00050-20000-20500-v1,Workshop,50,500,49
+2025-08-27T12:19:20.714446,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00051-20400-20900-v1,Workshop,51,500,49
+2025-08-27T12:19:20.714446,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00052-20800-21300-v1,Workshop,52,500,49
+2025-08-27T12:19:20.714446,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00053-21200-21700-v1,Workshop,53,500,49
+2025-08-27T12:19:20.714446,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00054-21600-22100-v1,Workshop,54,500,49
+2025-08-27T12:19:20.714446,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00055-22000-22500-v1,Workshop,55,500,49
+2025-08-27T12:19:20.714446,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00056-22400-22900-v1,Workshop,56,500,49
+2025-08-27T12:19:20.714446,PEP 2025 - Workshop 01 - Session 1 - Transcription.docx,Workshop/2025/pep-2025---workshop-01---session-1---transcription/afc700d1:chunk00057-22800-23010-v1,Workshop,57,210,49
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00000-0-500-v1,Podcast,0,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00001-400-900-v1,Podcast,1,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00002-800-1300-v1,Podcast,2,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00003-1200-1700-v1,Podcast,3,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00004-1600-2100-v1,Podcast,4,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00005-2000-2500-v1,Podcast,5,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00006-2400-2900-v1,Podcast,6,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00007-2800-3300-v1,Podcast,7,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00008-3200-3700-v1,Podcast,8,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00009-3600-4100-v1,Podcast,9,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00010-4000-4500-v1,Podcast,10,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00011-4400-4900-v1,Podcast,11,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00012-4800-5300-v1,Podcast,12,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00013-5200-5700-v1,Podcast,13,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00014-5600-6100-v1,Podcast,14,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00015-6000-6500-v1,Podcast,15,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00016-6400-6900-v1,Podcast,16,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00017-6800-7300-v1,Podcast,17,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00018-7200-7700-v1,Podcast,18,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00019-7600-8100-v1,Podcast,19,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00020-8000-8500-v1,Podcast,20,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00021-8400-8900-v1,Podcast,21,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00022-8800-9300-v1,Podcast,22,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00023-9200-9700-v1,Podcast,23,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00024-9600-10100-v1,Podcast,24,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00025-10000-10500-v1,Podcast,25,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00026-10400-10900-v1,Podcast,26,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00027-10800-11300-v1,Podcast,27,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00028-11200-11700-v1,Podcast,28,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00029-11600-12100-v1,Podcast,29,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00030-12000-12500-v1,Podcast,30,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00031-12400-12900-v1,Podcast,31,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00032-12800-13300-v1,Podcast,32,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00033-13200-13700-v1,Podcast,33,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00034-13600-14100-v1,Podcast,34,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00035-14000-14500-v1,Podcast,35,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00036-14400-14900-v1,Podcast,36,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00037-14800-15300-v1,Podcast,37,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00038-15200-15700-v1,Podcast,38,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00039-15600-16100-v1,Podcast,39,500,58
+2025-08-27T12:19:26.490968,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00040-16000-16500-v1,Podcast,40,500,58
+2025-08-27T12:19:26.492014,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00041-16400-16900-v1,Podcast,41,500,58
+2025-08-27T12:19:26.492014,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00042-16800-17300-v1,Podcast,42,500,58
+2025-08-27T12:19:26.492014,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00043-17200-17700-v1,Podcast,43,500,58
+2025-08-27T12:19:26.492014,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00044-17600-18100-v1,Podcast,44,500,58
+2025-08-27T12:19:26.492014,POD 2020 - Episode  001 - Audio.docx,Podcast/2020/pod-2020---episode-001---audio/f248a8d2:chunk00045-18000-18397-v1,Podcast,45,397,58
