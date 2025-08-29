@@ -1,384 +1,243 @@
-# src/meta/index.py
+# src/search/index.py
 from __future__ import annotations
+import os, re, pandas as pd
+from dataclasses import dataclass, field
+from typing import Dict, Tuple, Any, List, Optional
 
-import os
-import math
-import pandas as pd
-from typing import Dict, Any, Iterable, Optional, Tuple, List
+MONTH3 = {"jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"}
+EP_PAT = re.compile(r"episode\s*0*([0-9]+)", re.I)
+COHORT_PAT = re.compile(r"(PE[AP])\s*(\d{4})", re.I)
 
-# --------- helpers ---------
+def _clean_cols(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+    df.columns = [str(c).strip().lower() for c in df.columns]
+    # strip whitespace in all string cells
+    for c in df.columns:
+        if df[c].dtype == object:
+            df[c] = df[c].map(lambda x: x.strip() if isinstance(x, str) else x)
+    return df
 
-MONTH3 = {
-    "jan": "Jan", "january": "Jan",
-    "feb": "Feb", "february": "Feb",
-    "mar": "Mar", "march": "Mar",
-    "apr": "Apr", "april": "Apr",
-    "may": "May",
-    "jun": "Jun", "june": "Jun",
-    "jul": "Jul", "july": "Jul",
-    "aug": "Aug", "august": "Aug",
-    "sep": "Sep", "sept": "Sep", "september": "Sep",
-    "oct": "Oct", "october": "Oct",
-    "nov": "Nov", "november": "Nov",
-    "dec": "Dec", "december": "Dec",
-}
-
-def _is_na(x) -> bool:
-    return x is None or (isinstance(x, float) and math.isnan(x)) or (isinstance(x, str) and not x.strip())
-
-def _to_int(x) -> Optional[int]:
-    if _is_na(x):
+def _month3_from_any(val: Any, fallback_from_filename: Optional[str]=None) -> Optional[str]:
+    if val is None or (isinstance(val, float) and pd.isna(val)):
+        if fallback_from_filename:
+            m = re.search(r"\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\b", fallback_from_filename, re.I)
+            if m: return m.group(1).title()[:3]
         return None
+    if isinstance(val, str):
+        s = val.strip()
+        # date-like? try pandas parse
+        try:
+            dt = pd.to_datetime(s, errors="raise", dayfirst=True)
+            return dt.strftime("%b")
+        except Exception:
+            pass
+        # 3-letter month embedded
+        m = re.search(r"\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\b", s, re.I)
+        if m: return m.group(1).title()[:3]
+    # datetime
     try:
-        return int(float(str(x).strip()))
+        dt = pd.to_datetime(val, errors="raise")
+        return dt.strftime("%b")
     except Exception:
         return None
 
-def _norm_month3_from_str(s: str) -> Optional[str]:
-    if _is_na(s):
-        return None
-    s = str(s).strip()
-    # try pandas parser first
+def _to_int(v) -> Optional[int]:
+    if v is None or (isinstance(v, float) and pd.isna(v)): return None
+    if isinstance(v, (int,)): return int(v)
+    s = str(v).strip()
+    if s == "": return None
+    s = re.sub(r"[^\d\-]", "", s)
     try:
-        dt = pd.to_datetime(s, dayfirst=True, errors="coerce")
-        if pd.notna(dt):
-            m = dt.month_name()
-            return MONTH3.get(m.lower(), m[:3])
+        return int(s)
     except Exception:
-        pass
+        return None
 
-    # fallback: scan tokens for a month word
-    tokens = [t.strip(",.- ").lower() for t in s.split()]
-    for t in tokens:
-        if t in MONTH3:
-            return MONTH3[t]
-    # nothing found
+def _episode_from_row(row: dict) -> Optional[int]:
+    # Try common columns then File Name pattern
+    for k in ["episode #","episode","podcast #","podcast number","episode number"]:
+        if k in row and _to_int(row[k]) is not None:
+            return _to_int(row[k])
+    fname = row.get("file name") or row.get("filename") or ""
+    m = EP_PAT.search(str(fname))
+    if m:
+        return _to_int(m.group(1))
     return None
 
-def _norm_month3_from_date(dt) -> Optional[str]:
-    if pd.isna(dt):
-        return None
-    try:
-        if not isinstance(dt, pd.Timestamp):
-            dt = pd.to_datetime(dt, dayfirst=True, errors="coerce")
-        if pd.notna(dt):
-            m = dt.month_name()
-            return MONTH3.get(m.lower(), m[:3])
-    except Exception:
-        return None
-    return None
+def _cohort_year_from_programme(s: str) -> Tuple[Optional[str], Optional[int]]:
+    if not s: return (None, None)
+    m = COHORT_PAT.search(s)
+    if not m: return (None, None)
+    cohort = m.group(1).upper()
+    year = int(m.group(2))
+    return (cohort, year)
 
-def _safe_str(x) -> Optional[str]:
-    if _is_na(x):
-        return None
-    return str(x).strip()
-
-def _first_token_upper(s: Optional[str]) -> Optional[str]:
-    """For Programme like 'PEP 2024', returns 'PEP'."""
-    if not s:
-        return None
-    return str(s).strip().split()[0].upper()
-
-def _year_from_date(x) -> Optional[int]:
-    try:
-        dt = pd.to_datetime(x, dayfirst=True, errors="coerce")
-        if pd.notna(dt):
-            return int(dt.year)
-    except Exception:
-        return None
-    return None
-
-# --------- MasterMetaIndex ---------
-
+@dataclass
 class MasterMetaIndex:
-    """
-    Loads the master XLSX/CSV sources and indexes four lookups:
+    by_workshop: Dict[Tuple[str,int,int,int], dict] = field(default_factory=dict)
+    by_mmm: Dict[Tuple[int,str], dict] = field(default_factory=dict)
+    by_mwm: Dict[Tuple[int,str,int], dict] = field(default_factory=dict)
+    by_pod: Dict[Tuple[int,int], dict] = field(default_factory=dict)
+    sources: List[str] = field(default_factory=list)
 
-    - Workshop: (cohort, cohort_year, workshop_number, session_number)
-    - MMM:      (year, mmm_month)
-    - MWM:      (year, mwm_month, session_number)
-    - Podcast:  (year, episode_number)
-
-    Value is a dict of authoritative fields (title/speaker/date/file_name/etc).
-    """
-
-    def __init__(self, paths: Iterable[str]):
-        self.paths: List[str] = list(paths or [])
-        self.by_workshop: Dict[Tuple[str, int, int, int], Dict[str, Any]] = {}
-        self.by_mmm: Dict[Tuple[int, str], Dict[str, Any]] = {}
-        self.by_mwm: Dict[Tuple[int, str, int], Dict[str, Any]] = {}
-        self.by_pod: Dict[Tuple[int, int], Dict[str, Any]] = {}
-
-        for p in self.paths:
-            self._load_one(p)
-
-    # --------------- loaders ---------------
-
-    def _load_one(self, path: str):
-        if not os.path.exists(path):
-            return  # silently skip; /meta/debug will show sources anyway
-
-        ext = os.path.splitext(path)[1].lower()
-        if ext in (".xlsx", ".xls"):
-            # read all sheets and try to classify each
-            try:
-                sheets = pd.read_excel(path, sheet_name=None, engine="openpyxl")
-            except TypeError:
-                sheets = pd.read_excel(path, sheet_name=None)  # fallback, engine autodetect
-            for name, df in (sheets or {}).items():
-                self._classify_and_ingest(df, source=f"{path}::{name}")
-        elif ext == ".csv":
-            df = pd.read_csv(path)
-            self._classify_and_ingest(df, source=path)
-        else:
-            # unsupported
-            return
-
-    def _classify_and_ingest(self, df: pd.DataFrame, source: str):
-        if df is None or df.empty:
-            return
-
-        # normalize column names (lower & strip)
-        colmap = {c: c for c in df.columns}
-        low = [str(c).strip().lower() for c in df.columns]
-        df.columns = low
-
-        # Heuristics to detect table type
-        cols = set(df.columns)
-
-        # Podcast sheet
-        if {"podcast #", "date of podcast"}.issubset(cols):
-            self._ingest_podcast(df, source)
-            return
-
-        # MWM sheet (has "session #" and "topic")
-        if {"session #", "date"}.issubset(cols) and ("topic" in cols or "host" in cols):
-            self._ingest_mwm(df, source)
-            return
-
-        # MMM sheet (has "session" column whose values are 'Midmonth Mentoring (MMM)', plus "year" and "date")
-        if "session" in cols and "year" in cols and "date" in cols:
-            # Extra guard: if it also has 'workshop title' then it's workshop; otherwise MMM
-            if "workshop title" not in cols and "workshop" not in cols:
-                self._ingest_mmm(df, source)
-                return
-
-        # Workshop sheet (has 'workshop title' and 'session')
-        if "workshop title" in cols and "session" in cols:
-            self._ingest_workshop(df, source)
-            return
-
-        # If we get here, nothing matched — ignore silently.
-
-    def _ingest_workshop(self, df: pd.DataFrame, source: str):
-        """
-        Expected columns (case-insensitive):
-          programme | cohort year | workshop | session | session heading | delivered by | workshop title | file name | file type
-        We only index PEA/PEP rows. We ignore SUPEREVENT rows.
-        """
-        prog_col = self._find_col(df, ["programme", "program"])
-        cohort_year_col = self._find_col(df, ["cohort year", "cohort_year", "cohortyear"])
-        wk_col = self._find_col(df, ["workshop"])
-        sess_col = self._find_col(df, ["session"])
-        delivered_col = self._find_col(df, ["delivered by", "delivered_by", "host"])
-        title_col = self._find_col(df, ["workshop title", "title"])
-        sess_head_col = self._find_col(df, ["session heading", "sessionheading"])
-        file_col = self._find_col(df, ["file name", "filename"])
-        ftype_col = self._find_col(df, ["file type", "filetype"])
-        start_month_col = self._find_col(df, ["starting month", "startingmonth"])
+    # --- ingestors ----------------------------------------------------------
+    def ingest_workshops(self, df: pd.DataFrame):
+        if df is None or df.empty: return
+        df = _clean_cols(df)
+        # expected columns (variants)
+        prog_col = "programme"
+        wk_col   = "workshop"
+        ses_col  = "session"
+        head_col = "session heading"
+        title_col= "workshop title"
+        by_col   = "delivered by"
+        file_col = "file name"
+        date_col = "starting month"
 
         for _, r in df.iterrows():
-            prog_raw = _safe_str(r.get(prog_col))
-            cohort_token = _first_token_upper(prog_raw)  # 'PEP', 'PEA', 'SUPEREVENT', etc.
-            if cohort_token not in {"PEP", "PEA"}:
-                continue  # skip non-core rows
-
-            cohort_year = _to_int(r.get(cohort_year_col))
+            programme = str(r.get(prog_col) or "").strip()
+            cohort, year = _cohort_year_from_programme(programme)
             wk = _to_int(r.get(wk_col))
-            ses = _to_int(r.get(sess_col))
-            if not all([cohort_year, wk, ses]):
+            ses = _to_int(r.get(ses_col))
+            if not (cohort and year and wk and ses): 
                 continue
-
-            row: Dict[str, Any] = {
+            payload = {
                 "program": "Workshop",
-                "cohort": cohort_token,
-                "cohort_year": cohort_year,
+                "cohort": cohort,
+                "cohort_year": year,
                 "workshop_number": wk,
                 "session_number": ses,
-                "session_heading": _safe_str(r.get(sess_head_col)),
-                "title": _safe_str(r.get(title_col)),
-                "speaker": _safe_str(r.get(delivered_col)),
-                "file_name": _safe_str(r.get(file_col)),
-                "file_type": _safe_str(r.get(ftype_col)),
-                "starting_month": _safe_str(r.get(start_month_col)),
-                "source": source,
+                "workshop_title": r.get(title_col),
+                "session_title": r.get(head_col),
+                "speaker": r.get(by_col),
+                "start_month": r.get(date_col),
+                "file_name": r.get(file_col),
             }
-            key = (cohort_token, cohort_year, wk, ses)
-            self.by_workshop[key] = row
+            self.by_workshop[(cohort, year, wk, ses)] = payload
 
-    def _ingest_mmm(self, df: pd.DataFrame, source: str):
-        """
-        Expected columns:
-          programme | session | year | date | host | file name | file type
-        We use (year, month3) as the key.
-        """
-        year_col = self._find_col(df, ["year"])
-        date_col = self._find_col(df, ["date"])
-        host_col = self._find_col(df, ["host"])
-        file_col = self._find_col(df, ["file name", "filename"])
-        ftype_col = self._find_col(df, ["file type", "filetype"])
-        prog_col = self._find_col(df, ["programme", "program"])
-        title_col = self._find_col(df, ["workshop title", "topic", "session heading", "session title"])  # may not exist
+    def ingest_mmm(self, df: pd.DataFrame):
+        if df is None or df.empty: return
+        df = _clean_cols(df)
+        prog_col = "programme"
+        date_col = "date"
+        host_col = "host"
+        file_col = "file name"
+        year_col = "year"
 
         for _, r in df.iterrows():
             year = _to_int(r.get(year_col))
-            if not year:
-                # Try derive from date if missing
-                d = r.get(date_col)
-                yy = _year_from_date(d)
-                if yy:
-                    year = yy
-            if not year:
+            month3 = _month3_from_any(r.get(date_col), r.get(file_col))
+            if not (year and month3): 
                 continue
-
-            # Month: prefer parsed date, fallback to scanning text/date string
-            d = r.get(date_col)
-            month = _norm_month3_from_date(d) or _norm_month3_from_str(_safe_str(d))
-            if not month:
-                # last fallback: from file name like "PEP Apr 2025 MMM - ..."
-                fn = _safe_str(r.get(file_col))
-                month = _norm_month3_from_str(fn)
-            if not month:
-                continue
-
-            row = {
+            payload = {
                 "program": "MMM",
                 "year": year,
-                "mmm_month": month,
-                "host": _safe_str(r.get(host_col)),
-                "file_name": _safe_str(r.get(file_col)),
-                "file_type": _safe_str(r.get(ftype_col)),
-                "programme_raw": _safe_str(r.get(prog_col)),
-                "title": _safe_str(r.get(title_col)),
-                "date": _safe_str(r.get(date_col)),
-                "source": source,
+                "mmm_month": month3,
+                "host": r.get(host_col),
+                "file_name": r.get(file_col),
+                "programme": r.get(prog_col),
+                "date": r.get(date_col),
             }
-            key = (year, month)
-            self.by_mmm[key] = row
+            self.by_mmm[(year, month3)] = payload
 
-    def _ingest_mwm(self, df: pd.DataFrame, source: str):
-        """
-        Expected columns:
-          programme | workshop | session # | date | host | topic | file name | file type
-        We use (year, month3, session_number) as the key.
-        """
-        date_col = self._find_col(df, ["date"])
-        host_col = self._find_col(df, ["host", "delivered by", "delivered_by"])
-        topic_col = self._find_col(df, ["topic", "session heading", "title"])
-        sessnum_col = self._find_col(df, ["session #", "session#", "session no", "session number"])
-        file_col = self._find_col(df, ["file name", "filename"])
-        ftype_col = self._find_col(df, ["file type", "filetype"])
-        prog_col = self._find_col(df, ["programme", "program"])
+    def ingest_mwm(self, df: pd.DataFrame):
+        if df is None or df.empty: return
+        df = _clean_cols(df)
+        prog_col = "programme"
+        date_col = "date"
+        host_col = "host"
+        topic_col= "topic"
+        file_col = "file name"
+        ses_col  = "session #"
 
         for _, r in df.iterrows():
-            d = r.get(date_col)
-            year = _year_from_date(d)
-            if not year:
+            programme = str(r.get(prog_col) or "")
+            cohort, year = _cohort_year_from_programme(programme)
+            month3 = _month3_from_any(r.get(date_col), r.get(file_col))
+            ses = _to_int(r.get(ses_col))
+            if not (year and month3 and ses):
                 continue
-            month = _norm_month3_from_date(d) or _norm_month3_from_str(_safe_str(d))
-            if not month:
-                # fallback from file name
-                month = _norm_month3_from_str(_safe_str(r.get(file_col)))
-            ses = _to_int(r.get(sessnum_col))
-            if not (month and ses):
-                continue
-
-            row = {
+            payload = {
                 "program": "MWM",
                 "year": year,
-                "mwm_month": month,
+                "mwm_month": month3,
                 "session_number": ses,
-                "host": _safe_str(r.get(host_col)),
-                "title": _safe_str(r.get(topic_col)),
-                "file_name": _safe_str(r.get(file_col)),
-                "file_type": _safe_str(r.get(ftype_col)),
-                "programme_raw": _safe_str(r.get(prog_col)),
-                "date": _safe_str(d),
-                "source": source,
+                "host": r.get(host_col),
+                "topic": r.get(topic_col),
+                "file_name": r.get(file_col),
+                "programme": programme,
             }
-            key = (year, month, ses)
-            self.by_mwm[key] = row
+            self.by_mwm[(year, month3, ses)] = payload
 
-    def _ingest_podcast(self, df: pd.DataFrame, source: str):
-        """
-        Expected columns:
-          podcast # | type | podcast title | guest(s) | date of podcast | file name | file type
-        We use (year, episode_number) as the key.
-        """
-        ep_col = self._find_col(df, ["podcast #", "podcast no", "episode", "episode #"])
-        date_col = self._find_col(df, ["date of podcast", "date"])
-        type_col = self._find_col(df, ["type"])
-        title_col = self._find_col(df, ["podcast title", "title"])
-        guests_col = self._find_col(df, ["guest(s)", "guests", "guest"])
-        file_col = self._find_col(df, ["file name", "filename"])
-        ftype_col = self._find_col(df, ["file type", "filetype"])
+    def ingest_podcasts(self, df: pd.DataFrame):
+        if df is None or df.empty: return
+        df = _clean_cols(df)
+        date_col = "date of podcast"
+        file_col = "file name"
+        title_col= "podcast title"
+        guests  = "guest(s)"
 
         for _, r in df.iterrows():
-            ep = _to_int(r.get(ep_col))
-            if not ep:
-                continue
-            d = r.get(date_col)
-            year = _year_from_date(d)
+            year = None
+            if r.get(date_col) is not None:
+                try:
+                    year = int(pd.to_datetime(r.get(date_col)).year)
+                except Exception:
+                    year = _to_int(r.get("year"))
             if not year:
                 continue
-
-            row = {
+            ep = _episode_from_row(r.to_dict())
+            if not ep:
+                continue
+            payload = {
                 "program": "Podcast",
                 "year": year,
                 "episode_number": ep,
-                "title": _safe_str(r.get(title_col)),
-                "guests": _safe_str(r.get(guests_col)),
-                "file_name": _safe_str(r.get(file_col)),
-                "file_type": _safe_str(r.get(ftype_col)),
-                "date": _safe_str(d),
-                "type": _safe_str(r.get(type_col)),
-                "source": source,
+                "title": r.get(title_col),
+                "guests": r.get(guests),
+                "file_name": r.get(file_col),
+                "date": r.get(date_col),
             }
-            key = (year, ep)
-            self.by_pod[key] = row
+            self.by_pod[(year, ep)] = payload
 
-    # --------------- utilities ---------------
-
-    def _find_col(self, df: pd.DataFrame, candidates: Iterable[str]) -> Optional[str]:
-        cols = set(df.columns)
-        for c in candidates:
-            cl = c.strip().lower()
-            if cl in cols:
-                return cl
-        return None
-
-    # --------------- lookups ---------------
-
-    def lookup_workshop(
-        self,
-        cohort: str,
-        cohort_year: int,
-        workshop_number: int,
-        session_number: int,
-    ) -> Optional[Dict[str, Any]]:
-        key = (str(cohort).upper(), int(cohort_year), int(workshop_number), int(session_number))
-        return self.by_workshop.get(key)
-
-    def lookup_mmm(self, year: int, mmm_month: str) -> Optional[Dict[str, Any]]:
-        month = MONTH3.get(str(mmm_month).strip().lower(), str(mmm_month).strip().title())
-        key = (int(year), month)
-        return self.by_mmm.get(key)
-
-    def lookup_mwm(self, year: int, mwm_month: str, session_number: int) -> Optional[Dict[str, Any]]:
-        month = MONTH3.get(str(mwm_month).strip().lower(), str(mwm_month).strip().title())
-        key = (int(year), month, int(session_number))
-        return self.by_mwm.get(key)
-
-    def lookup_podcast(self, year: int, episode_number: int) -> Optional[Dict[str, Any]]:
-        key = (int(year), int(episode_number))
-        return self.by_pod.get(key)
+    # --- load entry ----------------------------------------------------------
+    @classmethod
+    def load_from_paths(cls, paths: List[str]) -> "MasterMetaIndex":
+        idx = cls()
+        idx.sources = paths[:]
+        for p in paths:
+            if not os.path.exists(p):
+                continue
+            try:
+                if p.lower().endswith(".csv"):
+                    df = pd.read_csv(p)
+                    # choose by a sniff of columns
+                    cols = {c.lower() for c in df.columns}
+                    if "podcast title" in cols or "date of podcast" in cols:
+                        idx.ingest_podcasts(df)
+                    elif "midmonth mentoring (mmm)" in cols or "mmm" in cols or "date" in cols and "host" in cols:
+                        # MMM CSVs you sent contain those columns
+                        idx.ingest_mmm(df)
+                    elif "session #" in cols and "topic" in cols:
+                        idx.ingest_mwm(df)
+                    else:
+                        # fallback ignore
+                        pass
+                else:
+                    # Excel: pick tabs by name if present, else by columns
+                    xls = pd.ExcelFile(p)
+                    for sn in xls.sheet_names:
+                        df = xls.parse(sn)
+                        lsn = sn.lower()
+                        cols = {c.lower() for c in df.columns}
+                        if "workshop title" in cols and "session" in cols and "workshop" in cols:
+                            idx.ingest_workshops(df)
+                        elif "midmonth mentoring" in lsn or ("host" in cols and "file name" in cols and "date" in cols and "year" in cols):
+                            idx.ingest_mmm(df)
+                        elif "midweek mentoring" in lsn or ("session #" in cols and "topic" in cols and "file name" in cols):
+                            idx.ingest_mwm(df)
+                        elif "podcast title" in cols or "date of podcast" in cols:
+                            idx.ingest_podcasts(df)
+            except Exception as e:
+                # continue on errors so one bad file doesn't kill whole load
+                print(f"[META] Skipped {p}: {e}")
+        return idx
