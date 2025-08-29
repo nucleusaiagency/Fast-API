@@ -1,0 +1,33 @@
+paths:
+  /meta/lookup:
+    post:
+      summary: Lookup authoritative metadata for a session/episode/month
+      operationId: metaLookup
+      security: [ { BearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [program]
+              properties:
+                program: { type: string, enum: [Workshop, MMM, MWM, Podcast] }
+                cohort: { type: string }
+                cohort_year: { type: integer }
+                workshop_number: { type: integer }
+                session_number: { type: integer }
+                year: { type: integer }
+                mmm_month: { type: string }
+                mwm_month: { type: string }
+                episode_number: { type: integer }
+      responses:
+        "200":
+          description: Row from master index (if found)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  found: { type: boolean }
+                  row:   { type: object }

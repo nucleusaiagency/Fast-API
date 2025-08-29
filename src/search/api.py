@@ -9,13 +9,23 @@ from fastapi.middleware.cors import CORSMiddleware
 from openai import OpenAI
 from pinecone import Pinecone
 
-# --- optional bearer auth ---
-API_TOKEN = os.getenv("SEARCH_API_TOKEN")  # set in .env to require auth
+# NEW: metadata index (all programs)
+from src.meta.index import MasterMetaIndex
 
-openai_client = OpenAI()
+# --- optional bearer auth ---
+API_TOKEN = os.getenv("SEARCH_API_TOKEN")  # set in .env / Render to require auth
+
+# Explicit key pass (robust against stray whitespace)
+OPENAI_API_KEY = (os.getenv("OPENAI_API_KEY") or "").strip()
+openai_client = OpenAI(api_key=OPENAI_API_KEY)
+
 pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
 index = pc.Index(os.getenv("PINECONE_INDEX", "transcripts"))
 EMBED_MODEL = os.getenv("EMBED_MODEL", "text-embedding-3-large")
+
+# Load master index (supports multiple files: CSV/XLSX)
+MASTER_INDEX_PATHS = [p.strip() for p in (os.getenv("MASTER_INDEX_PATHS","").split(",")) if p.strip()]
+META = MasterMetaIndex(MASTER_INDEX_PATHS) if MASTER_INDEX_PATHS else None
 
 app = FastAPI(title="Transcripts Search API", version="1.1.0")
 
@@ -70,6 +80,26 @@ class SearchResponse(BaseModel):
     groups: Optional[List[GroupedResult]] = None
     used_filter: Optional[Dict[str, Any]] = None
 
+# NEW: /meta/lookup request/response
+class MetaLookupRequest(BaseModel):
+    program: str  # Workshop | MMM | MWM | Podcast
+    # Workshop
+    cohort: Optional[str] = None
+    cohort_year: Optional[int] = None
+    workshop_number: Optional[int] = None
+    session_number: Optional[int] = None
+    # MMM
+    year: Optional[int] = None
+    mmm_month: Optional[str] = None
+    # MWM
+    mwm_month: Optional[str] = None
+    # Podcast
+    episode_number: Optional[int] = None
+
+class MetaLookupResponse(BaseModel):
+    found: bool
+    row: Optional[Dict[str, Any]] = None
+
 # ---------- helpers ----------
 def build_pinecone_filter(f: Optional[Filters]) -> Optional[Dict[str, Any]]:
     if not f:
@@ -109,11 +139,47 @@ def _shorten(txt: str, max_chars: int) -> str:
 # ---------- routes ----------
 @app.get("/")
 def root():
-    return {"ok": True, "docs": "/docs", "health": "/health", "post": "/search"}
+    return {"ok": True, "docs": "/docs", "health": "/health", "post": "/search", "meta": "/meta/lookup"}
 
 @app.get("/health")
 def health():
-    return {"ok": True, "index": os.getenv("PINECONE_INDEX", "transcripts")}
+    return {
+        "ok": True,
+        "index": os.getenv("PINECONE_INDEX", "transcripts"),
+        "meta_loaded": bool(META),
+        "meta_sources": MASTER_INDEX_PATHS,
+    }
+
+# NEW: authoritative metadata lookup (Workshop | MMM | MWM | Podcast)
+@app.post("/meta/lookup", response_model=MetaLookupResponse)
+def meta_lookup(req: MetaLookupRequest, authorization: Optional[str] = Header(None)):
+    auth_check(authorization)
+    if not META:
+        raise HTTPException(status_code=500, detail="Master index not loaded. Set MASTER_INDEX_PATHS env (comma-separated).")
+
+    p = (req.program or "").strip().lower()
+    row = None
+    if p == "workshop":
+        need = [req.cohort, req.cohort_year, req.workshop_number, req.session_number]
+        if not all(need):
+            raise HTTPException(status_code=400, detail="Workshop lookup needs cohort, cohort_year, workshop_number, session_number")
+        row = META.lookup_workshop(req.cohort, req.cohort_year, req.workshop_number, req.session_number)
+    elif p == "mmm":
+        if not (req.year and req.mmm_month):
+            raise HTTPException(status_code=400, detail="MMM lookup needs year and mmm_month")
+        row = META.lookup_mmm(req.year, req.mmm_month)
+    elif p == "mwm":
+        if not (req.year and req.mwm_month and req.session_number):
+            raise HTTPException(status_code=400, detail="MWM lookup needs year, mwm_month and session_number")
+        row = META.lookup_mwm(req.year, req.mwm_month, req.session_number)
+    elif p == "podcast":
+        if not (req.year and req.episode_number):
+            raise HTTPException(status_code=400, detail="Podcast lookup needs year and episode_number")
+        row = META.lookup_podcast(req.year, req.episode_number)
+    else:
+        raise HTTPException(status_code=400, detail="program must be one of Workshop|MMM|MWM|Podcast")
+
+    return MetaLookupResponse(found=bool(row), row=row or None)
 
 @app.post("/search", response_model=SearchResponse)
 def search(req: SearchRequest, authorization: Optional[str] = Header(None)):

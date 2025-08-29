@@ -10,3 +10,5 @@ uvicorn
 pydantic
 tqdm
 tenacity
+pandas
+openpyxl
