@@ -102,6 +102,7 @@ class MasterMetaIndex:
             for f in os.listdir(master_dir):
                 available_master_files[os.path.basename(f).lower()] = os.path.join(master_dir, f)
 
+        loaded_files = set()
         for raw in paths:
             path = (raw or "").strip()
             if not path:
@@ -140,9 +141,29 @@ class MasterMetaIndex:
                     idx._load_csv(path)
                 else:
                     print(f"[META] skip (unsupported ext): {path}")
+                loaded_files.add(os.path.abspath(path))
             except Exception as e:
                 print(f"[META] error loading {path}: {e}")
-        
+
+        # If no workshops were loaded from the configured MASTER_INDEX_PATHS,
+        # attempt to load all files found under data/master/ as a fallback. This
+        # helps when the configured names don't precisely match the files in
+        # the deployed container.
+        if len(idx.by_workshop) == 0 and available_master_files:
+            for basename, pth in available_master_files.items():
+                abs_pth = os.path.abspath(pth)
+                if abs_pth in loaded_files:
+                    continue
+                try:
+                    if abs_pth.lower().endswith('.xlsx'):
+                        idx._load_workbook(abs_pth)
+                    elif abs_pth.lower().endswith('.csv'):
+                        idx._load_csv(abs_pth)
+                    loaded_files.add(abs_pth)
+                    print(f"[META] info: fallback-loaded master file: {basename}")
+                except Exception as e:
+                    print(f"[META] error loading fallback file {abs_pth}: {e}")
+
         # Initialize speaker matcher with all known speakers
         idx._speaker_matcher = SpeakerMatcher()
         for row in idx.by_workshop.values():
@@ -270,7 +291,10 @@ class MasterMetaIndex:
         c_year     = find_col(df, "Cohort Year", "Year")
         c_workshop = find_col(df, "Workshop")
         c_session  = find_col(df, "Session", "Session #")
+        # Debug: show which columns were resolved for this dataframe
+        print(f"[META] debug: source={source} sheet={sheet} resolved_cols prog={c_prog} year={c_year} workshop={c_workshop} session={c_session}")
         if not all([c_prog, c_year, c_workshop, c_session]):
+            print(f"[META] debug: missing required workshop columns in {source} (sheet={sheet}) - skipping")
             return False  # not a workshop table
 
         c_title       = find_col(df, "Workshop Title", "Session Heading", "Topic", "Title")
@@ -280,13 +304,18 @@ class MasterMetaIndex:
         c_file        = find_col(df, "File Name", "Filename")
 
         rows: List[Dict[str, Any]] = []
+        candidate_rows = 0
         for _, r in df.iterrows():
             programme = norm_str(r.get(c_prog))
             cohort = programme.strip().split()[0].upper() if programme else None  # "PEP 2024" -> "PEP"
             cohort_year = to_int(r.get(c_year))
             wk_no       = to_int(r.get(c_workshop))
             sess_no     = to_int(r.get(c_session))
+            candidate_rows += 1
             if not (cohort and cohort_year and wk_no and sess_no):
+                # Debug: show one failing row example occasionally
+                if candidate_rows <= 3:
+                    print(f"[META] debug: skipping row #{candidate_rows} src={source} programme={programme!r} year={cohort_year!r} wk={wk_no!r} sess={sess_no!r}")
                 continue
 
             rows.append({
@@ -304,8 +333,9 @@ class MasterMetaIndex:
                 "source": source,
             })
 
-        self._ingest_workshops(rows)
-        return True
+    self._ingest_workshops(rows)
+    print(f"[META] debug: {len(rows)} workshop rows extracted from {source} (candidates={candidate_rows})")
+    return True
 
     # ---------- finalize / prefer transcripts but don't drop others ----------
     def _ingest_workshops(self, rows: List[Dict[str, Any]]):
