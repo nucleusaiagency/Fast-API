@@ -239,10 +239,23 @@ def meta_lookup(req: MetaLookup, authorization: Optional[str] = Header(None)):
     p = (req.program or "").strip().lower()
 
     if p == "workshop":
-        cohort = (req.cohort or "").upper()
-        key = (cohort, int(req.cohort_year or 0), int(req.workshop_number or 0), int(req.session_number or 0))
-        row = META.by_workshop.get(key)
-        return {"found": bool(row), "row": row}
+        # Exact key lookup
+        if req.cohort and req.cohort_year and req.workshop_number and req.session_number:
+            cohort = (req.cohort or "").upper()
+            key = (cohort, int(req.cohort_year), int(req.workshop_number), int(req.session_number))
+            row = META.by_workshop.get(key)
+            if row:
+                return {"found": True, "row": row, "partial": False}
+
+        # Fallback to partial matches (return list)
+        partials = META.lookup_workshop_partial(
+            cohort=req.cohort,
+            cohort_year=req.cohort_year,
+            workshop_number=req.workshop_number,
+            session_number=req.session_number,
+            title=getattr(req, "title", None)
+        )
+        return {"found": bool(partials), "rows": partials, "partial": True}
 
     if p == "mmm":
         month = m3(req.mmm_month or "")
@@ -262,6 +275,19 @@ def meta_lookup(req: MetaLookup, authorization: Optional[str] = Header(None)):
         return {"found": bool(row), "row": row}
 
     return {"found": False, "row": None, "reason": "unknown program"}
+
+
+@app.post("/meta/reload", summary="Reload meta from MASTER_INDEX_PATHS")
+def meta_reload(authorization: Optional[str] = Header(None)):
+    auth_check(authorization)
+    global META
+    if not MASTER_INDEX_PATHS:
+        return {"ok": False, "reason": "MASTER_INDEX_PATHS not configured"}
+    try:
+        META = MasterMetaIndex.load_from_paths(MASTER_INDEX_PATHS)
+        return {"ok": True, "wk": len(META.by_workshop), "mmm": len(META.by_mmm), "mwm": len(META.by_mwm), "pod": len(META.by_pod)}
+    except Exception as e:
+        return {"ok": False, "reason": str(e)}
 
 # --- semantic search ---
 @app.post("/search", response_model=SearchResponse, tags=["search"])
