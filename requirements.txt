@@ -13,4 +13,6 @@ tenacity
 pandas
 openpyxl
 tenacity
+cachetools
+python-Levenshtein
 
