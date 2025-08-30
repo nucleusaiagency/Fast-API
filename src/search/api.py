@@ -10,7 +10,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from openai import OpenAI
-from pinecone import Pinecone
 
 # ---- meta index (lives in src/search/index.py) ----
 from .index import MasterMetaIndex
@@ -26,9 +25,31 @@ OPENAI_API_KEY = (os.getenv("OPENAI_API_KEY") or "").strip()
 # OpenAI
 openai_client = OpenAI(api_key=OPENAI_API_KEY if OPENAI_API_KEY else None)
 
-# Pinecone
-pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
-index = pc.Index(os.getenv("PINECONE_INDEX", "transcripts"))
+# Initialize Pinecone (try official package first, then fall back)
+pinecone = None
+import importlib
+try:
+    _pinecone = importlib.import_module("pinecone")
+    pinecone = _pinecone
+except ModuleNotFoundError:
+    try:
+        _pinecone_text = importlib.import_module("pinecone_text")
+        pinecone = _pinecone_text
+    except ModuleNotFoundError as e:
+        print(f"Warning: Pinecone import failed: {e}")
+
+if pinecone:
+    try:
+        # safe init: some pinecone variants use init(), others may not require it
+        if hasattr(pinecone, "init"):
+            pinecone.init(api_key=os.getenv("PINECONE_API_KEY"))
+        index = pinecone.Index(os.getenv("PINECONE_INDEX", "transcripts"))
+    except Exception as e:
+        print(f"Warning: Pinecone initialization failed: {e}")
+        index = None
+else:
+    index = None
+
 EMBED_MODEL = os.getenv("EMBED_MODEL", "text-embedding-3-large")
 
 # ----- META LOADING -----
@@ -126,7 +147,7 @@ class SearchResponse(BaseModel):
 
 # ---- meta lookup request (compact) ----
 class MetaLookup(BaseModel):
-    program: str  # "Workshop" | "MMM" | "MWM" | "Podcast"
+    program: str  # "Workshop" | "MMM" | "MWM" | "Podcast" | "speaker"
 
     # Workshop
     cohort: Optional[str] = None          # PEP / PEA
@@ -144,6 +165,9 @@ class MetaLookup(BaseModel):
 
     # Podcast
     episode_number: Optional[int] = None
+    
+    # Speaker matching
+    query_string: Optional[str] = None    # For speaker matching
 
 
 # =========================
@@ -273,6 +297,15 @@ def meta_lookup(req: MetaLookup, authorization: Optional[str] = Header(None)):
         key = (int(req.year or 0), int(req.episode_number or 0))
         row = META.by_pod.get(key)
         return {"found": bool(row), "row": row}
+
+    # Special case for speaker lookup
+    if p == "speaker":
+        if not META or not META._speaker_matcher:
+            return {"found": False, "reason": "speaker matcher not initialized"}
+        query = req.query_string or ""
+        if matched := META._speaker_matcher.match(query):
+            return {"found": True, "speaker": matched}
+        return {"found": False, "reason": "no matching speaker found"}
 
     return {"found": False, "row": None, "reason": "unknown program"}
 

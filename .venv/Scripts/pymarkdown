@@ -1,0 +1,20 @@
+#!C:\Users\SHIM\Desktop\transcripts-pinecone\.venv\Scripts\python.exe
+
+from pymarkdown import process
+from sys import argv, exit
+
+if len(argv) == 2:
+    fn, outfn = argv[1], argv[1]
+elif len(argv) == 3:
+    fn, outfn = argv[1], argv[2]
+else:
+    print("Usage:\n\tpymarkdown infile.md outfile.md")
+    exit(1)
+
+with open(fn) as f:
+    text = f.read()
+
+output = process(text)
+
+with open(outfn, 'w') as f:
+    f.write(output)

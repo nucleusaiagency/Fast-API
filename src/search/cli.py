@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from openai import OpenAI
-from pinecone import Pinecone
+import importlib
 
 def build_filter(args):
     f = {}
@@ -41,7 +41,12 @@ def main():
     args = ap.parse_args()
 
     openai_client = OpenAI()
-    pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+    # Import pinecone at runtime to avoid import-time errors in editors/environments
+    try:
+        pc_mod = importlib.import_module("pinecone")
+    except ModuleNotFoundError:
+        raise RuntimeError("pinecone package not installed. Please install the 'pinecone' package in your environment.")
+    pc = pc_mod.Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
     index = pc.Index(os.getenv("PINECONE_INDEX", "transcripts"))
 
     emb = openai_client.embeddings.create(
