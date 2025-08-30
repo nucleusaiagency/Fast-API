@@ -287,55 +287,70 @@ class MasterMetaIndex:
 
     # ---------- shared workshop ingestor (for both XLSX + CSV) ----------
     def _try_ingest_workshops_df(self, df: pd.DataFrame, *, source: str, sheet: Optional[str]) -> bool:
-        c_prog     = find_col(df, "Programme", "Program", "Programme ")
-        c_year     = find_col(df, "Cohort Year", "Year")
-        c_workshop = find_col(df, "Workshop")
-        c_session  = find_col(df, "Session", "Session #")
+        """Try to ingest workshop-style rows from a dataframe.
+
+        Returns True if this dataframe looked like a workshop table (even if 0 rows
+        met the required fields). Debug logs are printed to help diagnose missing
+        or mismatched columns.
+        """
+        c_prog = find_col(df, "Programme", "Program", "Programme ")
+        c_year = find_col(df, "Cohort Year", "Year")
+        c_workshop = find_col(df, "Workshop", "Workshop #")
+        c_session = find_col(df, "Session", "Session #")
+
         # Debug: show which columns were resolved for this dataframe
-        print(f"[META] debug: source={source} sheet={sheet} resolved_cols prog={c_prog} year={c_year} workshop={c_workshop} session={c_session}")
+        print(
+            f"[META] debug: source={source} sheet={sheet} resolved_cols prog={c_prog} year={c_year} workshop={c_workshop} session={c_session}"
+        )
+
         if not all([c_prog, c_year, c_workshop, c_session]):
             print(f"[META] debug: missing required workshop columns in {source} (sheet={sheet}) - skipping")
-            return False  # not a workshop table
+            return False
 
-        c_title       = find_col(df, "Workshop Title", "Session Heading", "Topic", "Title")
-        c_delivered   = find_col(df, "Delivered by", "Delivered By", "Host", "Speaker", "Speakers")
-        c_type        = find_col(df, "File Type", "Type")
+        c_title = find_col(df, "Workshop Title", "Session Heading", "Topic", "Title")
+        c_delivered = find_col(df, "Delivered by", "Delivered By", "Host", "Speaker", "Speakers")
+        c_type = find_col(df, "File Type", "Type")
         c_start_month = find_col(df, "Starting Month", "Start Month", "Month")
-        c_file        = find_col(df, "File Name", "Filename")
+        c_file = find_col(df, "File Name", "Filename")
 
         rows: List[Dict[str, Any]] = []
         candidate_rows = 0
         for _, r in df.iterrows():
             programme = norm_str(r.get(c_prog))
-            cohort = programme.strip().split()[0].upper() if programme else None  # "PEP 2024" -> "PEP"
+            cohort = programme.strip().split()[0].upper() if programme else None
             cohort_year = to_int(r.get(c_year))
-            wk_no       = to_int(r.get(c_workshop))
-            sess_no     = to_int(r.get(c_session))
+            wk_no = to_int(r.get(c_workshop))
+            sess_no = to_int(r.get(c_session))
             candidate_rows += 1
+
             if not (cohort and cohort_year and wk_no and sess_no):
-                # Debug: show one failing row example occasionally
                 if candidate_rows <= 3:
-                    print(f"[META] debug: skipping row #{candidate_rows} src={source} programme={programme!r} year={cohort_year!r} wk={wk_no!r} sess={sess_no!r}")
+                    print(
+                        f"[META] debug: skipping row #{candidate_rows} src={source} programme={programme!r} year={cohort_year!r} wk={wk_no!r} sess={sess_no!r}"
+                    )
                 continue
 
-            rows.append({
-                "program": "Workshop",
-                "cohort": cohort,
-                "cohort_year": cohort_year,
-                "workshop_number": wk_no,
-                "session_number": sess_no,
-                "title": first_of(r.get(c_title)),
-                "speakers": first_of(r.get(c_delivered)),
-                "file_type": (norm_str(r.get(c_type)) or "").lower(),
-                "file_name": norm_str(r.get(c_file)) if c_file else None,
-                "start_month": month3_from_any(r.get(c_start_month)),
-                "sheet": sheet,
-                "source": source,
-            })
+            rows.append(
+                {
+                    "program": "Workshop",
+                    "cohort": cohort,
+                    "cohort_year": cohort_year,
+                    "workshop_number": wk_no,
+                    "session_number": sess_no,
+                    "title": first_of(r.get(c_title)),
+                    "speakers": first_of(r.get(c_delivered)),
+                    "file_type": (norm_str(r.get(c_type)) or "").lower(),
+                    "file_name": norm_str(r.get(c_file)) if c_file else None,
+                    "start_month": month3_from_any(r.get(c_start_month)),
+                    "sheet": sheet,
+                    "source": source,
+                }
+            )
 
-    self._ingest_workshops(rows)
-    print(f"[META] debug: {len(rows)} workshop rows extracted from {source} (candidates={candidate_rows})")
-    return True
+        # finalize
+        self._ingest_workshops(rows)
+        print(f"[META] debug: {len(rows)} workshop rows extracted from {source} (candidates={candidate_rows})")
+        return True
 
     # ---------- finalize / prefer transcripts but don't drop others ----------
     def _ingest_workshops(self, rows: List[Dict[str, Any]]):
