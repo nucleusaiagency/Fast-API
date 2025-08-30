@@ -112,8 +112,27 @@ class MasterMetaIndex:
                 if base in available_master_files:
                     path = available_master_files[base]
                 else:
-                    print(f"[META] warn: path not found -> {path}")
-                    continue
+                    # Try fuzzy token overlap matching against files in data/master
+                    import re
+                    base_no_ext = re.sub(r"\.[^.]+$", "", base)
+                    tokens = [t for t in re.split(r"[^a-z0-9]+", base_no_ext) if t]
+                    best = None
+                    best_score = 0
+                    for k, pth in available_master_files.items():
+                        k_no_ext = re.sub(r"\.[^.]+$", "", k)
+                        k_tokens = [t for t in re.split(r"[^a-z0-9]+", k_no_ext) if t]
+                        score = len(set(tokens) & set(k_tokens))
+                        if score > best_score:
+                            best_score = score
+                            best = k
+
+                    # require at least one token overlap and at least half of tokens matching (best-effort)
+                    if best and best_score >= max(1, len(tokens) // 2):
+                        path = available_master_files[best]
+                        print(f"[META] info: resolved missing path '{base}' -> '{best}' via token match")
+                    else:
+                        print(f"[META] warn: path not found -> {path}")
+                        continue
             try:
                 if path.lower().endswith(".xlsx"):
                     idx._load_workbook(path)
