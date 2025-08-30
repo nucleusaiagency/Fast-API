@@ -5,6 +5,9 @@ import re
 from dataclasses import dataclass, field
 from typing import Dict, Any, List, Optional, Tuple, Iterable
 
+from .cache import cached, meta_cache, clear_caches
+from .speaker import SpeakerMatcher
+
 import pandas as pd
 
 MONTH3 = {
@@ -81,11 +84,15 @@ class MasterMetaIndex:
     by_mmm: Dict[Tuple[int, str], Dict[str, Any]] = field(default_factory=dict)
     by_mwm: Dict[Tuple[int, str, int], Dict[str, Any]] = field(default_factory=dict)
     by_pod: Dict[Tuple[int, int], Dict[str, Any]] = field(default_factory=dict)
+    
+    # Speaker matching for fuzzy name lookups
+    _speaker_matcher: Optional["SpeakerMatcher"] = None
 
     # ---------- entry ----------
     @classmethod
     def load_from_paths(cls, paths: Iterable[str]) -> "MasterMetaIndex":
         idx = cls()
+        clear_caches()  # Clear caches before reload
         for raw in paths:
             path = (raw or "").strip()
             if not path: continue
@@ -101,6 +108,26 @@ class MasterMetaIndex:
                     print(f"[META] skip (unsupported ext): {path}")
             except Exception as e:
                 print(f"[META] error loading {path}: {e}")
+        
+        # Initialize speaker matcher with all known speakers
+        idx._speaker_matcher = SpeakerMatcher()
+        for row in idx.by_workshop.values():
+            if speaker := row.get("speakers"):
+                idx._speaker_matcher.add_speaker(speaker)
+        for row in idx.by_mmm.values():
+            if host := row.get("host"):
+                idx._speaker_matcher.add_speaker(host)
+        for row in idx.by_mwm.values():
+            if host := row.get("host"):
+                idx._speaker_matcher.add_speaker(host)
+        
+        print("[META] loaded: ", end="")
+        print(f"wk={len(idx.by_workshop)} ", end="")
+        print(f"mmm={len(idx.by_mmm)} ", end="")
+        print(f"mwm={len(idx.by_mwm)} ", end="")
+        print(f"pod={len(idx.by_pod)}")
+        n_speakers = len({speaker for row in idx.by_workshop.values() if (speaker := row.get("speakers"))})
+        print(f"[META] indexed {n_speakers} unique speakers")
         return idx
 
     # ---------- workbook (workshops often live here) ----------
@@ -267,20 +294,29 @@ class MasterMetaIndex:
                 self.by_workshop[key] = row
 
     # ---------- lookups ----------
+    @cached(meta_cache)
     def lookup_workshop(self, cohort: str, cohort_year: int, workshop_number: int, session_number: int) -> Optional[Dict[str, Any]]:
         key = (cohort.upper(), int(cohort_year), int(workshop_number), int(session_number))
         return self.by_workshop.get(key)
 
+    @cached(meta_cache)
     def lookup_workshop_partial(self, cohort: Optional[str] = None, cohort_year: Optional[int] = None,
-                                 workshop_number: Optional[int] = None, session_number: Optional[int] = None,
-                                 title: Optional[str] = None) -> List[Dict[str, Any]]:
+                              workshop_number: Optional[int] = None, session_number: Optional[int] = None,
+                              title: Optional[str] = None, speaker: Optional[str] = None) -> List[Dict[str, Any]]:
         """Return list of workshop rows that match all provided non-empty criteria.
 
         Criteria are treated as AND. If no criteria provided, returns empty list.
+        Speaker matching is fuzzy - will match partial names and common variations.
         """
         results: List[Dict[str, Any]] = []
         # normalize cohort
         cohort_n = str(cohort).upper() if cohort else None
+        
+        # If speaker provided, try to match to known speaker
+        matched_speaker = None
+        if speaker and self._speaker_matcher:
+            matched_speaker = self._speaker_matcher.match(speaker)
+        
         for key, row in self.by_workshop.items():
             k_cohort, k_year, k_wk, k_sess = key
             ok = True
@@ -294,6 +330,9 @@ class MasterMetaIndex:
                 ok = False
             if title and row.get("title"):
                 if title.lower() not in str(row.get("title")).lower():
+                    ok = False
+            if matched_speaker and row.get("speakers"):
+                if matched_speaker != row["speakers"]:
                     ok = False
             if ok:
                 results.append(row)

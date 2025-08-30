@@ -27,8 +27,18 @@ def test_workshop_lookup_and_partial(tmp_path):
     # exact lookup
     row = idx.lookup_workshop("PEP", 2025, 4, 1)
     assert row is not None
-    assert row.get("speakers") in ("Rachel Davis", "Rachel Davis")
+    assert row.get("speakers") == "Rachel Davis"
 
     # partial lookup by cohort+workshop
     partials = idx.lookup_workshop_partial(cohort="PEP", cohort_year=2025, workshop_number=4)
     assert len(partials) == 2
+    
+    # partial lookup by speaker (exact)
+    by_speaker = idx.lookup_workshop_partial(speaker="Rachel Davis")
+    assert len(by_speaker) == 1
+    assert by_speaker[0]["speakers"] == "Rachel Davis"
+    
+    # partial lookup by speaker (fuzzy)
+    by_speaker_fuzzy = idx.lookup_workshop_partial(speaker="Rachel")
+    assert len(by_speaker_fuzzy) == 1
+    assert by_speaker_fuzzy[0]["speakers"] == "Rachel Davis"
