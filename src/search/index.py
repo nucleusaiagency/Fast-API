@@ -93,12 +93,27 @@ class MasterMetaIndex:
     def load_from_paths(cls, paths: Iterable[str]) -> "MasterMetaIndex":
         idx = cls()
         clear_caches()  # Clear caches before reload
+        # Support two modes:
+        # 1) Exact paths provided in MASTER_INDEX_PATHS (preferred)
+        # 2) If a configured path is missing, try to find a file with the same basename under data/master/
+        master_dir = os.path.join(os.getcwd(), "data", "master")
+        available_master_files = {}
+        if os.path.isdir(master_dir):
+            for f in os.listdir(master_dir):
+                available_master_files[os.path.basename(f).lower()] = os.path.join(master_dir, f)
+
         for raw in paths:
             path = (raw or "").strip()
-            if not path: continue
-            if not os.path.exists(path):
-                print(f"[META] warn: path not found -> {path}")
+            if not path:
                 continue
+            if not os.path.exists(path):
+                # try fallback by basename in data/master
+                base = os.path.basename(path).lower()
+                if base in available_master_files:
+                    path = available_master_files[base]
+                else:
+                    print(f"[META] warn: path not found -> {path}")
+                    continue
             try:
                 if path.lower().endswith(".xlsx"):
                     idx._load_workbook(path)

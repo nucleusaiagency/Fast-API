@@ -13,6 +13,7 @@ from openai import OpenAI
 
 # ---- meta index (lives in src/search/index.py) ----
 from .index import MasterMetaIndex
+from .pinecone_client import get_pinecone_index
 
 
 # =========================
@@ -25,29 +26,11 @@ OPENAI_API_KEY = (os.getenv("OPENAI_API_KEY") or "").strip()
 # OpenAI
 openai_client = OpenAI(api_key=OPENAI_API_KEY if OPENAI_API_KEY else None)
 
-# Initialize Pinecone (try official package first, then fall back)
-pinecone = None
-import importlib
+# Initialize Pinecone index (backwards-compatible helper)
 try:
-    _pinecone = importlib.import_module("pinecone")
-    pinecone = _pinecone
-except ModuleNotFoundError:
-    try:
-        _pinecone_text = importlib.import_module("pinecone_text")
-        pinecone = _pinecone_text
-    except ModuleNotFoundError as e:
-        print(f"Warning: Pinecone import failed: {e}")
-
-if pinecone:
-    try:
-        # safe init: some pinecone variants use init(), others may not require it
-        if hasattr(pinecone, "init"):
-            pinecone.init(api_key=os.getenv("PINECONE_API_KEY"))
-        index = pinecone.Index(os.getenv("PINECONE_INDEX", "transcripts"))
-    except Exception as e:
-        print(f"Warning: Pinecone initialization failed: {e}")
-        index = None
-else:
+    index = get_pinecone_index(index_name=os.getenv("PINECONE_INDEX", "transcripts"), create_if_missing=True, dim=int(os.getenv("EMBED_DIM", "3072")))
+except Exception as e:
+    print(f"Warning: Pinecone initialization failed: {e}")
     index = None
 
 EMBED_MODEL = os.getenv("EMBED_MODEL", "text-embedding-3-large")
