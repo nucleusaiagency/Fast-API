@@ -20,8 +20,25 @@ from .pinecone_client import get_pinecone_index, PineconeConnectionError
 # Environment / Clients
 # =========================
 
-API_TOKEN = os.getenv("SEARCH_API_TOKEN")  # optional bearer token
+# Load environment variables
+load_dotenv()
+
+# Required API keys
 OPENAI_API_KEY = (os.getenv("OPENAI_API_KEY") or "").strip()
+PINECONE_API_KEY = (os.getenv("PINECONE_API_KEY") or "").strip()
+PINECONE_INDEX = os.getenv("PINECONE_INDEX", "transcripts")
+
+# Optional configs
+API_TOKEN = os.getenv("SEARCH_API_TOKEN")  # optional bearer token
+EMBED_MODEL = os.getenv("EMBED_MODEL", "text-embedding-3-large")
+EMBED_DIM = int(os.getenv("EMBED_DIM", "3072"))
+
+print("[STARTUP] Environment check:")
+print(f"- OpenAI API key: {'present' if OPENAI_API_KEY else 'MISSING'}")
+print(f"- Pinecone API key: {'present' if PINECONE_API_KEY else 'MISSING'}")
+print(f"- Pinecone index: {PINECONE_INDEX}")
+print(f"- Embedding model: {EMBED_MODEL}")
+print(f"- Embedding dimensions: {EMBED_DIM}")
 
 # OpenAI
 openai_client = OpenAI(api_key=OPENAI_API_KEY if OPENAI_API_KEY else None)
@@ -207,7 +224,14 @@ def _shorten(txt: str, max_chars: int) -> str:
 
 @app.get("/")
 def root():
-    return {"ok": True, "docs": "/docs", "health": "/health", "post": "/search", "meta": "/meta/lookup"}
+    return {
+        "ok": True,
+        "time": str(datetime.now()),
+        "index_available": index is not None,
+        "openai_key": bool(OPENAI_API_KEY),
+        "pinecone_key": bool(os.getenv("PINECONE_API_KEY")),
+        "meta_loaded": bool(META)
+    }
 
 @app.get("/ping")
 async def ping():
@@ -376,7 +400,21 @@ def meta_reload(authorization: Optional[str] = Header(None)):
 # --- semantic search ---
 @app.post("/search", response_model=SearchResponse, tags=["search"])
 def search(req: SearchRequest, authorization: Optional[str] = Header(None)):
-    """Non-async search endpoint with simplified error handling"""
+    """Non-async search endpoint with detailed logging"""
+    print(f"[SEARCH] Received question: {req.question[:50]}...")
+    
+    # Check basic requirements
+    if not OPENAI_API_KEY:
+        print("[ERROR] Missing OpenAI API key")
+        raise HTTPException(status_code=500, detail="OpenAI API key not configured")
+        
+    if not os.getenv("PINECONE_API_KEY"):
+        print("[ERROR] Missing Pinecone API key")
+        raise HTTPException(status_code=500, detail="Pinecone API key not configured")
+        
+    if not index:
+        print("[ERROR] Pinecone index not initialized")
+        raise HTTPException(status_code=503, detail="Search index not ready - please retry in 30 seconds")
     try:
         # 1. Create embedding
         emb = openai_client.embeddings.create(
