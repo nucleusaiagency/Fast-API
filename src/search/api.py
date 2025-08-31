@@ -210,13 +210,33 @@ def root():
     return {"ok": True, "docs": "/docs", "health": "/health", "post": "/search", "meta": "/meta/lookup"}
 
 @app.get("/health")
-def health():
-    return {
+async def health():
+    """Enhanced health check that ensures Pinecone connection"""
+    status = {
         "ok": True,
         "index": os.getenv("PINECONE_INDEX", "transcripts"),
         "meta_loaded": bool(META),
         "meta_sources": MASTER_INDEX_PATHS,
     }
+    
+    # Test Pinecone connection
+    if index:
+        try:
+            # Simple query to test connection
+            test_query = [0.0] * int(os.getenv("EMBED_DIM", "3072"))
+            index.query(vector=test_query, top_k=1, include_metadata=True)
+            status["pinecone"] = "connected"
+        except PineconeConnectionError:
+            status["pinecone"] = "starting"
+            status["retry_after"] = 30
+            raise HTTPException(
+                status_code=503,
+                detail="Search service is starting up (takes ~30s). Please retry shortly."
+            )
+        except Exception as e:
+            status["pinecone"] = f"error: {str(e)}"
+            
+    return status
 
 # --- meta debug (peek at keys) ---
 @app.get("/meta/debug", summary="Meta Debug")
@@ -307,13 +327,45 @@ def meta_reload(authorization: Optional[str] = Header(None)):
 
 # --- semantic search ---
 @app.post("/search", response_model=SearchResponse, tags=["search"])
-def search(req: SearchRequest, authorization: Optional[str] = Header(None)):
+async def search(req: SearchRequest, authorization: Optional[str] = Header(None)):
     auth_check(authorization)
+
+    if not index:
+        raise HTTPException(
+            status_code=503,
+            detail="Search service is initializing. Please retry in 30 seconds."
+        )
 
     if not (req.query and req.query.strip()):
         raise HTTPException(status_code=400, detail="Empty query")
 
-    # Embed the query
+    # First check Pinecone connection
+    try:
+        # Quick connection test
+        test_query = [0.0] * int(os.getenv("EMBED_DIM", "3072"))
+        index.query(vector=test_query, top_k=1)
+    except PineconeConnectionError:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "Search service is starting up",
+                "message": "The service needs about 30 seconds to wake up. Please retry shortly.",
+                "retry_after": 30
+            }
+        )
+    except Exception as e:
+        if "Connection refused" in str(e):
+            raise HTTPException(
+                status_code=503,
+                detail={
+                    "error": "Service warming up",
+                    "message": "The service is starting (takes ~30s). Please retry.",
+                    "retry_after": 30
+                }
+            )
+        raise HTTPException(status_code=502, detail=f"Pinecone connection failed: {e}")
+
+    # Now proceed with the actual search
     try:
         emb = openai_client.embeddings.create(model=EMBED_MODEL, input=req.query).data[0].embedding
     except Exception as e:
@@ -332,10 +384,14 @@ def search(req: SearchRequest, authorization: Optional[str] = Header(None)):
     except PineconeConnectionError as e:
         raise HTTPException(
             status_code=503,
-            detail="Search service is starting up (takes ~30s). Please retry shortly."
+            detail={
+                "error": "Service restarting",
+                "message": "The search service needs to wake up (takes ~30s). Please retry.",
+                "retry_after": 30
+            }
         )
     except Exception as e:
-        raise HTTPException(status_code=502, detail=f"Pinecone query failed: {e}")
+        raise HTTPException(status_code=502, detail=f"Search failed: {e}")
 
     matches: List[Match] = []
     seen_sources = set()
