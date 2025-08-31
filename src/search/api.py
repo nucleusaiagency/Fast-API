@@ -375,14 +375,43 @@ def meta_reload(authorization: Optional[str] = Header(None)):
 
 # --- semantic search ---
 @app.post("/search", response_model=SearchResponse, tags=["search"])
-async def search(req: SearchRequest, authorization: Optional[str] = Header(None)):
-    auth_check(authorization)
+def search(req: SearchRequest, authorization: Optional[str] = Header(None)):
+    """Non-async search endpoint with simplified error handling"""
+    try:
+        # 1. Create embedding
+        emb = openai_client.embeddings.create(
+            model=EMBED_MODEL,
+            input=req.question
+        ).data[0].embedding
 
-    if not index:
-        raise HTTPException(
-            status_code=503,
-            detail="Search service is initializing. Please retry in 30 seconds."
+        # 2. Query Pinecone
+        res = index.query(
+            vector=emb,
+            top_k=req.k or 5,
+            include_metadata=True
         )
+
+        # 3. Format results
+        matches = []
+        for m in (res.get("matches", []) or []):
+            md = m.get("metadata", {}) or {}
+            matches.append({
+                "id": m.get("id"),
+                "score": float(m.get("score", 0.0)),
+                "text": md.get("text", ""),
+                "metadata": md
+            })
+
+        return {"results": matches}
+
+    except Exception as e:
+        error_msg = str(e)
+        if "Connection refused" in error_msg or not index:
+            raise HTTPException(
+                status_code=503,
+                detail="Service starting up - please retry in 30 seconds"
+            )
+        raise HTTPException(status_code=500, detail=str(e))
 
     if not (req.query and req.query.strip()):
         raise HTTPException(status_code=400, detail="Empty query")
