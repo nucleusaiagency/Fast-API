@@ -209,6 +209,41 @@ def _shorten(txt: str, max_chars: int) -> str:
 def root():
     return {"ok": True, "docs": "/docs", "health": "/health", "post": "/search", "meta": "/meta/lookup"}
 
+@app.get("/ping")
+async def ping():
+    """Quick ping endpoint that always returns immediately."""
+    return {"status": "ok"}
+
+@app.get("/warmup")
+async def warmup():
+    """Endpoint to warm up the service and keep it alive."""
+    global index
+    try:
+        # Test Pinecone connection with minimal query
+        if index:
+            test_vector = [0.0] * int(os.getenv("EMBED_DIM", "3072"))
+            await index.query(vector=test_vector, top_k=1)
+            
+        # Test OpenAI connection with minimal request
+        if openai_client:
+            await openai_client.embeddings.create(
+                model=EMBED_MODEL,
+                input="test"
+            )
+            
+        return {
+            "status": "warmed_up",
+            "pinecone": "connected" if index else "not_configured",
+            "openai": "connected",
+            "meta_loaded": bool(META)
+        }
+    except Exception as e:
+        return {
+            "status": "warming_up",
+            "error": str(e),
+            "retry_after": 30
+        }
+
 @app.get("/health")
 async def health():
     """Enhanced health check that ensures Pinecone connection"""
