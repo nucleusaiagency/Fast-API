@@ -214,6 +214,19 @@ async def ping():
     """Quick ping endpoint that always returns immediately."""
     return {"status": "ok"}
 
+@app.get("/cron")
+async def cron():
+    """Endpoint for cron services to keep the app alive."""
+    try:
+        # Quick connection tests
+        test_vector = [0.0] * int(os.getenv("EMBED_DIM", "3072"))
+        if index:
+            await index.query(vector=test_vector, top_k=1)
+        await openai_client.embeddings.create(model=EMBED_MODEL, input="test")
+        return {"status": "healthy", "timestamp": str(datetime.now())}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
 @app.get("/warmup")
 async def warmup():
     """Endpoint to warm up the service and keep it alive."""
