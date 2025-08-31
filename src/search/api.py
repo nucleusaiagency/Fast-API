@@ -13,7 +13,7 @@ from openai import OpenAI
 
 # ---- meta index (lives in src/search/index.py) ----
 from .index import MasterMetaIndex
-from .pinecone_client import get_pinecone_index
+from .pinecone_client import get_pinecone_index, PineconeConnectionError
 
 
 # =========================
@@ -328,6 +328,11 @@ def search(req: SearchRequest, authorization: Optional[str] = Header(None)):
             include_metadata=True,
             filter=pc_filter,
             namespace=req.namespace or ""
+        )
+    except PineconeConnectionError as e:
+        raise HTTPException(
+            status_code=503,
+            detail="Search service is starting up (takes ~30s). Please retry shortly."
         )
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Pinecone query failed: {e}")

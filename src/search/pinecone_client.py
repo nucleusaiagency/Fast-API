@@ -1,6 +1,12 @@
 import os
 import importlib
+import time
 from typing import Optional, Any, Dict
+
+
+class PineconeConnectionError(Exception):
+    """Custom exception for Pinecone connection issues"""
+    pass
 
 
 class PineconeIndexProxy:
@@ -12,18 +18,44 @@ class PineconeIndexProxy:
         self._client = client
         self._name = name
 
+    def _handle_operation(self, operation_name: str, operation, **kwargs) -> Dict[str, Any]:
+        """Generic handler for retrying operations with error handling"""
+        max_retries = 3
+        retry_delay = 1  # seconds
+        attempts = 0
+        last_error = None
+
+        while attempts < max_retries:
+            try:
+                return operation(**kwargs)
+            except Exception as e:
+                last_error = e
+                attempts += 1
+                if attempts < max_retries:
+                    time.sleep(retry_delay * attempts)  # Exponential backoff
+                continue
+
+        if "Connection refused" in str(last_error):
+            raise PineconeConnectionError(
+                f"Failed to {operation_name} after {max_retries} attempts. Service may be starting up."
+            )
+        raise RuntimeError(f"Operation {operation_name} failed. Error: {str(last_error)}")
+
     def query(self, **kwargs) -> Dict[str, Any]:
         # Try old-style index API first
         if self._old is not None:
-            return self._old.query(**kwargs)
+            return self._handle_operation("query", self._old.query, **kwargs)
 
         # New client-style: try client.query(index=..., ...)
         if self._client is not None:
             try:
-                return self._client.query(index=self._name, **kwargs)
+                return self._handle_operation(
+                    "query",
+                    lambda **kw: self._client.query(index=self._name, **kw),
+                    **kwargs
+                )
             except TypeError:
-                # some variants may expect different arg names; try without index kwarg
-                return self._client.query(**kwargs)
+                return self._handle_operation("query", self._client.query, **kwargs)
 
         raise RuntimeError("No underlying pinecone index/client available for query")
 
