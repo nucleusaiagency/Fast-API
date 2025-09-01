@@ -1,0 +1,95 @@
+openapi: "3.1.0"
+info:
+  title: Transcripts Search API
+  version: "1.3.0"
+  description: |
+    Minimal OpenAPI 3.0 spec for the Transcripts Search API.
+    Use this file to import the API into CustomGPT or other OpenAPI-aware tools.
+
+servers:
+  - url: https://transcripts-search.onrender.com
+
+components:
+  schemas: {}
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+
+paths:
+  /search:
+    post:
+      operationId: search
+      summary: Semantic search over transcript chunks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [question]
+              properties:
+                question:
+                  type: string
+                top_k:
+                  type: integer
+                  default: 5
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        score:
+                          type: number
+                        text:
+                          type: string
+                        metadata:
+                          type: object
+        '400':
+          description: Bad request
+        '503':
+          description: Service unavailable
+
+  /meta/lookup:
+    post:
+      operationId: metaLookup
+      summary: Lookup authoritative metadata
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [program]
+              properties:
+                program:
+                  type: string
+                query_string:
+                  type: string
+      responses:
+        '200':
+          description: Metadata lookup result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  found:
+                    type: boolean
+                  row:
+                    type: object
+                  partial:
+                    type: boolean
+                    description: Whether this is a partial match result

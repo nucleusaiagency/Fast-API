@@ -1,6 +1,7 @@
 # src/search/api.py
 from typing import List, Optional, Dict, Any
 import os
+from datetime import datetime
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -114,13 +115,9 @@ class Filters(BaseModel):
     raw: Optional[Dict[str, Any]] = None  # e.g. {"cohort":"PEP","cohort_year":2024,"workshop_number":2,"session_number":1}
 
 class SearchRequest(BaseModel):
-    query: str
-    k: int = 8
-    filters: Optional[Filters] = None
-    dedupe_by_source: bool = False
-    group_by_session: bool = False
-    max_snippet_chars: int = 320
-    namespace: Optional[str] = None
+    """Search request schema matching CustomGPT expectations"""
+    question: str 
+    top_k: Optional[int] = 5
 
 class Match(BaseModel):
     id: str
@@ -239,35 +236,36 @@ async def ping():
     return {"status": "ok"}
 
 @app.get("/cron")
-async def cron():
+def cron():
     """Endpoint for cron services to keep the app alive."""
     try:
         # Quick connection tests
         test_vector = [0.0] * int(os.getenv("EMBED_DIM", "3072"))
         if index:
-            await index.query(vector=test_vector, top_k=1)
-        await openai_client.embeddings.create(model=EMBED_MODEL, input="test")
+            # index.query is a synchronous method in our Pinecone wrapper
+            index.query(vector=test_vector, top_k=1)
+        # OpenAI client in this app is used synchronously
+        openai_client.embeddings.create(model=EMBED_MODEL, input="test")
         return {"status": "healthy", "timestamp": str(datetime.now())}
     except Exception as e:
         return {"status": "error", "error": str(e)}
 
 @app.get("/warmup")
-async def warmup():
+def warmup():
     """Endpoint to warm up the service and keep it alive."""
     global index
     try:
         # Test Pinecone connection with minimal query
         if index:
             test_vector = [0.0] * int(os.getenv("EMBED_DIM", "3072"))
-            await index.query(vector=test_vector, top_k=1)
-            
+            # Pinecone wrapper query is synchronous
+            index.query(vector=test_vector, top_k=1)
+
         # Test OpenAI connection with minimal request
         if openai_client:
-            await openai_client.embeddings.create(
-                model=EMBED_MODEL,
-                input="test"
-            )
-            
+            # OpenAI client is used synchronously in this app
+            openai_client.embeddings.create(model=EMBED_MODEL, input="test")
+
         return {
             "status": "warmed_up",
             "pinecone": "connected" if index else "not_configured",
@@ -398,152 +396,89 @@ def meta_reload(authorization: Optional[str] = Header(None)):
         return {"ok": False, "reason": str(e)}
 
 # --- semantic search ---
-@app.post("/search", response_model=SearchResponse, tags=["search"])
-def search(req: SearchRequest, authorization: Optional[str] = Header(None)):
-    """Non-async search endpoint with detailed logging"""
-    print(f"[SEARCH] Received question: {req.question[:50]}...")
-    
-    # Check basic requirements
-    if not OPENAI_API_KEY:
-        print("[ERROR] Missing OpenAI API key")
-        raise HTTPException(status_code=500, detail="OpenAI API key not configured")
-        
-    if not os.getenv("PINECONE_API_KEY"):
-        print("[ERROR] Missing Pinecone API key")
-        raise HTTPException(status_code=500, detail="Pinecone API key not configured")
-        
-    if not index:
-        print("[ERROR] Pinecone index not initialized")
-        raise HTTPException(status_code=503, detail="Search index not ready - please retry in 30 seconds")
+@app.post("/search")
+def search(req: SearchRequest):
+    """Simple search endpoint that matches CustomGPT's expectations"""
     try:
-        # 1. Create embedding
-        emb = openai_client.embeddings.create(
-            model=EMBED_MODEL,
-            input=req.question
-        ).data[0].embedding
+        if not req.question.strip():
+            raise HTTPException(status_code=400, detail="Empty query")
 
-        # 2. Query Pinecone
-        res = index.query(
-            vector=emb,
-            top_k=req.k or 5,
-            include_metadata=True
-        )
+        print(f"[SEARCH] Processing: {req.question[:100]}...")
+        
+        # 1. Create embedding
+        try:
+            emb = openai_client.embeddings.create(
+                model=EMBED_MODEL,
+                input=req.question
+            ).data[0].embedding
+        except Exception as e:
+            print(f"[ERROR] OpenAI embedding failed: {str(e)}")
+            raise HTTPException(
+                status_code=503,
+                detail="Service error. Please retry in 30 seconds."
+            )
+
+        # 2. Search Pinecone
+        try:
+            results = index.query(
+                vector=emb,
+                top_k=req.top_k or 5,
+                include_metadata=True
+            )
+        except PineconeConnectionError:
+            raise HTTPException(
+                status_code=503,
+                detail="Search service is starting up. Please retry in 30 seconds."
+            )
+        except Exception as e:
+            print(f"[ERROR] Pinecone query failed: {str(e)}")
+            if "Connection refused" in str(e):
+                raise HTTPException(
+                    status_code=503,
+                    detail="Service is warming up. Please retry in 30 seconds."
+                )
+            raise HTTPException(
+                status_code=503,
+                detail="Service error. Please retry in 30 seconds."
+            )
 
         # 3. Format results
         matches = []
-        for m in (res.get("matches", []) or []):
+        for m in (results.get("matches", []) or []):
             md = m.get("metadata", {}) or {}
+            # Convert score to float, handle invalid values
+            try:
+                score = float(m.get("score", 0.0)) if m.get("score") is not None else 0.0
+            except (ValueError, TypeError):
+                score = 0.0
+                
+            # Normalize metadata
+            metadata = md or {}
+            speakers = metadata.get("speakers", [])
+            if speakers is None:
+                speakers = []
+            elif not isinstance(speakers, list):
+                speakers = [str(speakers)]
+                
             matches.append({
-                "id": m.get("id"),
-                "score": float(m.get("score", 0.0)),
-                "text": md.get("text", ""),
-                "metadata": md
+                "id": m.get("id", ""),
+                "score": score,
+                "text": "" if metadata.get("text") is None else metadata.get("text", ""),
+                "metadata": {
+                    "program": None if not metadata.get("program") else metadata["program"],
+                    "title": metadata.get("title"),
+                    "speakers": speakers,
+                    "date": metadata.get("date")
+                }
             })
 
         return {"results": matches}
-
+        
+    except HTTPException:
+        raise  # Re-raise HTTP exceptions as-is
     except Exception as e:
-        error_msg = str(e)
-        if "Connection refused" in error_msg or not index:
-            raise HTTPException(
-                status_code=503,
-                detail="Service starting up - please retry in 30 seconds"
-            )
-        raise HTTPException(status_code=500, detail=str(e))
-
-    if not (req.query and req.query.strip()):
-        raise HTTPException(status_code=400, detail="Empty query")
-
-    # First check Pinecone connection
-    try:
-        # Quick connection test
-        test_query = [0.0] * int(os.getenv("EMBED_DIM", "3072"))
-        index.query(vector=test_query, top_k=1)
-    except PineconeConnectionError:
+        print(f"[ERROR] Search failed: {str(e)}")
         raise HTTPException(
             status_code=503,
-            detail={
-                "error": "Search service is starting up",
-                "message": "The service needs about 30 seconds to wake up. Please retry shortly.",
-                "retry_after": 30
-            }
+            detail="Service error. Please retry in 30 seconds."
         )
-    except Exception as e:
-        if "Connection refused" in str(e):
-            raise HTTPException(
-                status_code=503,
-                detail={
-                    "error": "Service warming up",
-                    "message": "The service is starting (takes ~30s). Please retry.",
-                    "retry_after": 30
-                }
-            )
-        raise HTTPException(status_code=502, detail=f"Pinecone connection failed: {e}")
-
-    # Now proceed with the actual search
-    try:
-        emb = openai_client.embeddings.create(model=EMBED_MODEL, input=req.query).data[0].embedding
-    except Exception as e:
-        raise HTTPException(status_code=502, detail=f"OpenAI embedding failed: {e}")
-
-    pc_filter = build_pinecone_filter(req.filters)
-
-    try:
-        res = index.query(
-            vector=emb,
-            top_k=req.k,
-            include_metadata=True,
-            filter=pc_filter,
-            namespace=req.namespace or ""
-        )
-    except PineconeConnectionError as e:
-        raise HTTPException(
-            status_code=503,
-            detail={
-                "error": "Service restarting",
-                "message": "The search service needs to wake up (takes ~30s). Please retry.",
-                "retry_after": 30
-            }
-        )
-    except Exception as e:
-        raise HTTPException(status_code=502, detail=f"Search failed: {e}")
-
-    matches: List[Match] = []
-    seen_sources = set()
-    for m in (res.get("matches", []) or []):
-        md = m.get("metadata", {}) or {}
-
-        if req.dedupe_by_source:
-            src = md.get("source_file")
-            if src and src in seen_sources:
-                continue
-            if src:
-                seen_sources.add(src)
-
-        matches.append(Match(
-            id=m.get("id"),
-            score=float(m.get("score", 0.0)),
-            text=_shorten(md.get("text", ""), req.max_snippet_chars),
-            program=md.get("program"),
-            title=md.get("title"),
-            speakers=md.get("speakers"),
-            date=md.get("date"),
-            session_name=md.get("session_name"),
-            year=md.get("year"),
-            source_file=md.get("source_file"),
-            chunk_id=md.get("chunk_id"),
-        ))
-
-    groups = None
-    if req.group_by_session:
-        by_key: Dict[str, List[Match]] = {}
-        for mm in matches:
-            key = (mm.session_name or "Unknown")
-            by_key.setdefault(key, []).append(mm)
-        groups = [GroupedResult(key=k, matches=v) for k, v in by_key.items()]
-
-    return SearchResponse(
-        matches=matches if not req.group_by_session else [],
-        groups=groups,
-        used_filter=pc_filter
-    )
